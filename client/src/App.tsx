@@ -2,52 +2,83 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import abi from "./contractJson/BuyMeACoffee.json";
 import { ethers } from "ethers";
+import { ExternalProvider } from "@ethersproject/providers";
 
 declare global {
   interface Window {
-    ethereum?: any;
+    ethereum?: ExternalProvider;
   }
 }
 
+type AppState = {
+  provider?: ethers.providers.Web3Provider;
+  signer?: ethers.Signer;
+  contract?: ethers.Contract;
+};
+
 function App() {
-  const [state, setState] = useState<any>({});
+  const [state, setState] = useState<AppState>({});
   const [account, setAccount] = useState("");
 
   useEffect(() => {
     const template = async () => {
-      const contractAddress = "0x200da7D8D222Fbd5dc98f154B8b714FB5D38CA9C";
+      const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS as string;
       const contractABI = abi.abi;
 
       try {
-        const { ethereum } = window;
-        const account = await ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        setAccount(account);
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
+        if (window.ethereum && window.ethereum.request) {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
 
-        const contract = new ethers.Contract(
-          contractAddress,
-          contractABI,
-          signer,
-        );
+          if (accounts.length > 0) {
+            setAccount(accounts[0]); // assuming you want the first account
+          }
 
-        setState({ provider, signer, contract });
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
 
-        console.log(account);
+          const contract = new ethers.Contract(
+            contractAddress,
+            contractABI,
+            signer,
+          );
+
+          setState({ provider, signer, contract });
+
+          console.log(account);
+        } else {
+          console.error(
+            "Ethereum provider (e.g., MetaMask) not detected in window",
+          );
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
     template();
-  }, []);
+  }, [account]);
+
+  const buyChai = async () => {
+    if (state.contract) {
+      const amount = { value: ethers.utils.parseEther("0.001") };
+      const transaction = await state.contract.buyChai("na", "na", amount);
+      await transaction.wait();
+      console.log("Transaction completed");
+      console.log(transaction);
+    }
+  };
 
   return (
     <>
-      <div>VITE</div>
-      <div>{account[1]}</div>
+      <div>Test</div>
+      <button onClick={buyChai}>BUY</button>
+      <div>
+        {(import.meta.env.VITE_CONTRACT_ADDRESS as string)
+          ? (import.meta.env.VITE_CONTRACT_ADDRESS as string)
+          : "nada"}
+      </div>
     </>
   );
 }
