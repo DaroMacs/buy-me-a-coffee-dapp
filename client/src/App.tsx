@@ -74,11 +74,6 @@ function App() {
     <>
       <div>Test</div>
       <button onClick={buyChai}>BUY</button>
-      <div>
-        {(import.meta.env.VITE_CONTRACT_ADDRESS as string)
-          ? (import.meta.env.VITE_CONTRACT_ADDRESS as string)
-          : "nada"}
-      </div>
     </>
   );
 }
