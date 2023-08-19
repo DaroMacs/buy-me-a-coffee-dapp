@@ -4,7 +4,7 @@ pragma solidity >=0.7.0 <0.9.0;
 contract BuyMeACoffee{
 
     struct Memo {
-        string Name;
+        string name;
         string message;
          uint timeStamp;
          address from;
