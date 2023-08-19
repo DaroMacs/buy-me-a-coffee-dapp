@@ -3,6 +3,7 @@ import "./App.css";
 import abi from "./contractJson/BuyMeACoffee.json";
 import { ethers } from "ethers";
 import Buy from "./components/Buy";
+import Memos from "./components/Memos";
 
 declare global {
   interface Window {
@@ -73,6 +74,7 @@ function App() {
       <div>Wallet: {account}</div>
 
       <Buy state={state} isLoading={isLoading} setIsLoading={setIsLoading} />
+      <Memos state={state} isLoading={isLoading} />
     </>
   );
 }

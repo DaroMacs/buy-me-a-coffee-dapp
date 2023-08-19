@@ -37,6 +37,11 @@ const Buy = ({ state, isLoading, setIsLoading }: IBuy) => {
       );
       setIsLoading(true);
       await transaction.wait();
+      setInputValues({
+        name: "",
+        message: "",
+        amount: 0,
+      });
       console.log("Transaction completed");
       console.log(transaction.hash);
       setIsLoading(false);
