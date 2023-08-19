@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import abi from "./contractJson/BuyMeACoffee.json";
 import { ethers } from "ethers";
-import { ExternalProvider } from "@ethersproject/providers";
+import Buy from "./components/Buy";
 
 declare global {
   interface Window {
-    ethereum?: ExternalProvider;
+    // eslint-disable-next-line
+    ethereum?: any;
   }
 }
 
-type AppState = {
+export type AppState = {
   provider?: ethers.providers.Web3Provider;
   signer?: ethers.Signer;
   contract?: ethers.Contract;
@@ -19,6 +20,7 @@ type AppState = {
 function App() {
   const [state, setState] = useState<AppState>({});
   const [account, setAccount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const template = async () => {
@@ -34,6 +36,11 @@ function App() {
           if (accounts.length > 0) {
             setAccount(accounts[0]); // assuming you want the first account
           }
+
+          window.ethereum.on("accountsChanged", () => {
+            console.log("changed");
+            window.location.reload();
+          });
 
           const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = provider.getSigner();
@@ -60,20 +67,12 @@ function App() {
     template();
   }, [account]);
 
-  const buyChai = async () => {
-    if (state.contract) {
-      const amount = { value: ethers.utils.parseEther("0.001") };
-      const transaction = await state.contract.buyChai("na", "na", amount);
-      await transaction.wait();
-      console.log("Transaction completed");
-      console.log(transaction);
-    }
-  };
-
   return (
     <>
-      <div>Test</div>
-      <button onClick={buyChai}>BUY</button>
+      <div>Buy Me a Coffee</div>
+      <div>Wallet: {account}</div>
+
+      <Buy state={state} isLoading={isLoading} setIsLoading={setIsLoading} />
     </>
   );
 }
